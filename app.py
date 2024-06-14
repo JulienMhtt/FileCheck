@@ -1,112 +1,124 @@
-from dash import Dash, html, dcc, callback, Output, Input, State
-from file_check import FileCheck
+import streamlit as st
 import pandas as pd
+import plotly.express as px
+from filecheck import FileCheck
 
-# Colors
-colors = {
-    'general_background' : '#FC4C4C',
-    'head_title' : '#383838',
-    'text' : '#000000'
-}
+# Sidebar
+st.sidebar.title("Upload your csv file")
 
+st.title("File check app")
+uploaded_files = st.sidebar.file_uploader("", type=["csv"], accept_multiple_files=True)
 
-# Initialize the app
-app = Dash()
+if uploaded_files:
 
+    file_names = [uploaded_file.name for uploaded_file in uploaded_files]
+    selected_file = st.sidebar.radio("**Select a file to display**", file_names)
 
-# App layout
-app.layout = html.Div(
-    style={'backgroundColor': colors['general_background'], 'height': '100vh', 'padding': '20px'},
-    children=[
-        # Title
-        html.H1(
-            children='CHECKFILE APP',
-            style={
-                'textAlign': 'center',
-                'color': colors['head_title']
-            }
-        ),
-
-        html.Div(
-            children='The app that helps you verify your data',
-            style={
-                'textAlign': 'center',
-                'color': colors['text']
-            }
-        ),
-
-        # Input field
-        html.Div(
-            children=['add your file path',
-                      html.Br(),
-                      dcc.Input(id='filepath-input', type='text'),
-                      html.Button('Submit', id='submit-button', n_clicks=0)
-                      ],
-            style={
-                'textAlign': 'left',
-                'color': colors['text']
-            }
-        ),
-
-        # Store to keep the file data
-        dcc.Store(
-            id='file-data', storage_type='session'
-            ),
-
-        # Output div to display the input value
-        html.Div(
-            id='display-filepath', style={'color': colors['text']}
-        )
-
-    ])
-
-# CALLBACKS
-
-# Get the filepath from input and display it
-@app.callback(
-    Output('display-filepath', 'children'),
-    Input('submit-button', 'n_clicks'),
-    State('filepath-input', 'value')
-)
-def create_filecheck_object(n_clicks, filepath):
-    if n_clicks > 0 and filepath:
-        file_checker = FileCheck(filepath)
-        file_checker.file_read()
-        return filepath
-    return ''
+    for uploaded_file in uploaded_files:
+        if uploaded_file.name == selected_file:
+            # Create an instance of Filecheck
+            file_check = FileCheck(uploaded_file)
 
 
 
-# Load the csv file
-@app.callback(
-    Output('file-data', 'data'),
-    Input('submit-button', 'n_clicks'),
-    State('filepath-input', 'value')
-)
-def load_csv_store_data(n_clicks, filepath):
-    if n_clicks > 0 and filepath:
-        df = pd.read_csv(filepath)
-        return df.to_json(date_format='iso', orient='split')
-    return ''
-
-
-# Display table stats
-@app.callback(
-    Output('output-div', 'children'),
-    Input('file-data', 'data')
-)
-def display_file_stats(data):
-    if data:
-        df = pd.read_json(data, orient='split')
-        file_checker = FileCheck('')
-        file_checker.df = df
-        stats = file_checker.file_stats().to_string(index=False)
-        return html.Pre(f"File Statistics:\n{stats}")
-    return 'No file data available.'
+            # Read the file
+            df = file_check.file_read()
+            st.write(f"The file **{uploaded_file.name}** is completely loaded")
+            st.write(" \n")
 
 
 
+            # Tabs
+            tab1, tab2, tab3 = st.tabs(["Overview", "Stats", "Graph view"])
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+            # TAB 1 OVERVIEW
+            with tab1:
+
+                # Display the shape
+                shape = file_check.file_shape()
+                st.write("### **Shape**")
+                st.write(f"This file has {shape[1]} columns and {shape[0]} rows")
+                st.write(" \n")
+
+
+
+                # Columns name
+                columns = file_check.file_columns()
+                columns_list = columns.tolist()
+                columns_string = ", ".join(columns_list)
+
+                st.write(f"### **Columns name**")
+                st.write(columns_string)
+                st.write(" \n")
+            
+
+
+                # File sample
+                sample = file_check.file_sample()
+
+                st.write("### **File sample**")
+                st.dataframe(sample)
+                st.write(" \n")
+
+
+
+                # File duplicates
+                duplicates = file_check.file_duplicates()
+
+                st.write("### **Duplicated rows**")
+                if not duplicates.empty:
+                    st.write(duplicates)
+                else:
+                    st.write("There is no duplicated values")
+
+                st.write(" \n")
+
+
+            # TAB 2 STATS
+            with tab2:
+
+                # File stats
+                file_stats = file_check.file_stats()
+
+                st.write("### **Here is some stats**")
+                st.write(file_stats)
+                st.write(" \n")
+
+
+
+            # TAB 3 GRAPHS
+            with tab3:
+
+                # Missing value graph
+                missing_value_graph = file_check.graph_missing()
+
+                st.write("### **Missing values**")
+                st.plotly_chart(missing_value_graph)
+                st.write(" \n")
+
+
+                # Correlation graph
+                correlation_graph = file_check.graph_correlation()
+
+                st.write("### **Correlation between columns**")
+                st.plotly_chart(correlation_graph)
+                st.write(" \n")
+
+
+                # Box plot
+                # Tick box selection
+                st.write("### **Box plot**")
+                numeric_columns = df.select_dtypes(include='number').columns.tolist()
+                selected_columns = st.multiselect("**Please select columns to include in the box plot**", numeric_columns, key=f"multiselect_{uploaded_file.name}")
+
+                if selected_columns:
+                    box_plot_graph = file_check.graph_box_plot(selected_columns)
+
+                    st.plotly_chart(box_plot_graph)
+                
+
+                st.write(" \n")
+
+else :
+    st.sidebar.write("**Please upload a csv file.**")
