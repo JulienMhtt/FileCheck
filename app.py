@@ -7,7 +7,7 @@ st.title("File check app")
 st.sidebar.title("Upload your csv file")
 
 # File type selection
-file_type_options = ["csv", "xlsx", "json", "parquet"]
+file_type_options = ["csv", "tsv", "xlsx", "json", "parquet"]
 selected_type = st.sidebar.radio("Choose a file type", options=file_type_options)
 
 # Sheet management Excel
@@ -33,10 +33,17 @@ if uploaded_files:
 
 
             # Read the file
-            df = file_check.file_read(xlsx_sheet)
-            st.write(f"The file **{uploaded_file.name}** is completely loaded")
-            st.write(" \n")
-
+            try: 
+                df = file_check.file_read(xlsx_sheet)
+                st.write(f"The file **{uploaded_file.name}** is completely loaded")
+                st.write(" \n")
+            except ValueError:
+                if selected_type == "xlsx":
+                    st.write("Sheet not found")
+                else :
+                    st.write("Error while processing file")
+                break
+                
 
             # Tabs
             tab1, tab2, tab3 = st.tabs(["Overview", "Stats", "Graph view"])

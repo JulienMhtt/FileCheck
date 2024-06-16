@@ -14,6 +14,8 @@ class FileCheck:
     def file_read(self, sheet_name=None):
         if self.file.name.endswith('.csv'):
             self.df = pd.read_csv(self.file)
+        elif self.file.name.endswith('.tsv'):
+            self.df = pd.read_csv(self.file, sep='\t')
         elif self.file.name.endswith('.xlsx'):
             if sheet_name:
                 self.df = pd.read_excel(self.file, sheet_name=sheet_name)
