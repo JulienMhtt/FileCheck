@@ -4,7 +4,7 @@ from filecheck import FileCheck
 st.title("File check app")
 
 # Sidebar
-st.sidebar.title("Upload your csv file")
+st.sidebar.title("Upload your file(s)")
 
 # File type selection
 file_type_options = ["csv", "tsv", "xlsx", "json", "parquet"]
@@ -139,3 +139,19 @@ if uploaded_files:
 
 else :
     st.sidebar.write("**Please upload your file(s).**")
+
+    st.markdown("""
+                
+### **Hi there,**
+This tool had been created to help you check the quality of your files.
+\n
+To understand how it works,
+- pleaser reach the page **"How to use"**
+                             
+To get the last information like the last updates and future features, 
+- reach the page **"News"**
+                            
+If you find any errors or think about a feature, 
+- reach the page **"Contact"**
+""")
+
