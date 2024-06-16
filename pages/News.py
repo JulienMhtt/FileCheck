@@ -19,5 +19,6 @@ st.markdown("""
             - Minimum and maximum lenght of a columns in the "Stats" section.
             - Better page management.
             - Improvment of the existing features.
+            - More csv separators.
             - Your ideas and needs :) 
 """)
