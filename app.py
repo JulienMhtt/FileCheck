@@ -1,13 +1,24 @@
 import streamlit as st
-import pandas as pd
-import plotly.express as px
 from filecheck import FileCheck
+
+st.title("File check app")
 
 # Sidebar
 st.sidebar.title("Upload your csv file")
 
-st.title("File check app")
-uploaded_files = st.sidebar.file_uploader("", type=["csv"], accept_multiple_files=True)
+# File type selection
+file_type_options = ["csv", "xlsx", "json", "parquet"]
+selected_type = st.sidebar.radio("Choose a file type", options=file_type_options)
+
+# Sheet management Excel
+xlsx_sheet=None
+if selected_type == "xlsx":
+    xlsx_sheet = st.sidebar.text_input("Sheet name (optional)")
+
+# File Uploader
+uploaded_files = st.sidebar.file_uploader("upload_file", type=selected_type, accept_multiple_files=True, label_visibility='hidden')
+
+
 
 if uploaded_files:
 
@@ -22,10 +33,9 @@ if uploaded_files:
 
 
             # Read the file
-            df = file_check.file_read()
+            df = file_check.file_read(xlsx_sheet)
             st.write(f"The file **{uploaded_file.name}** is completely loaded")
             st.write(" \n")
-
 
 
             # Tabs
@@ -121,4 +131,4 @@ if uploaded_files:
                 st.write(" \n")
 
 else :
-    st.sidebar.write("**Please upload a csv file.**")
+    st.sidebar.write("**Please upload your file(s).**")

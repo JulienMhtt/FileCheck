@@ -11,10 +11,19 @@ class FileCheck:
 
 
     # Read the csv file
-    def file_read(self):
-      df = pd.read_csv(self.file)
-      self.df = df
-      return self.df
+    def file_read(self, sheet_name=None):
+        if self.file.name.endswith('.csv'):
+            self.df = pd.read_csv(self.file)
+        elif self.file.name.endswith('.xlsx'):
+            if sheet_name:
+                self.df = pd.read_excel(self.file, sheet_name=sheet_name)
+            else:
+                self.df = pd.read_excel(self.file)
+        elif self.file.name.endswith('.parquet'):
+            self.df = pd.read_parquet(self.file)
+        elif self.file.name.endswith('.json'):
+            self.df = pd.read_json(self.file)
+        return self.df
 
 
 
