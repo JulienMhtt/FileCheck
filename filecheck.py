@@ -73,10 +73,14 @@ class FileCheck:
       df_file_stats["Can_be_unique_key"] = df_file_stats["Nb_unique_values"] == self.df.shape[0]
 
       # Stats
-      df_file_stats["Min"] = df_file_stats["Column_name"].apply(lambda col: self.df[col].min() if pd.api.types.is_numeric_dtype(self.df[col]) else None)
-      df_file_stats["Max"] = df_file_stats["Column_name"].apply(lambda col: self.df[col].max() if pd.api.types.is_numeric_dtype(self.df[col]) else None)
-      df_file_stats["Mean"] = df_file_stats["Column_name"].apply(lambda col: self.df[col].mean() if pd.api.types.is_numeric_dtype(self.df[col]) else None)
-      df_file_stats["Median"] = df_file_stats["Column_name"].apply(lambda col: self.df[col].mean() if pd.api.types.is_numeric_dtype(self.df[col]) else None)
+      df_file_stats["Min_value"] = df_file_stats["Column_name"].apply(lambda col: self.df[col].dropna().min() if pd.api.types.is_numeric_dtype(self.df[col]) else None)
+      df_file_stats["Max_value"] = df_file_stats["Column_name"].apply(lambda col: self.df[col].dropna().max() if pd.api.types.is_numeric_dtype(self.df[col]) else None)
+      df_file_stats["Mean"] = df_file_stats["Column_name"].apply(lambda col: self.df[col].dropna().mean() if pd.api.types.is_numeric_dtype(self.df[col]) else None)
+      df_file_stats["Median"] = df_file_stats["Column_name"].apply(lambda col: self.df[col].dropna().mean() if pd.api.types.is_numeric_dtype(self.df[col]) else None)
+
+      # Lenght of values
+      df_file_stats["Min_lenght"] = df_file_stats["Column_name"].apply(lambda col: self.df[col].dropna().apply(lambda x: len(str(x))).min())
+      df_file_stats["Max_lenght"] = df_file_stats["Column_name"].apply(lambda col: self.df[col].dropna().apply(lambda x: len(str(x))).max())
 
       # Sample
       df_file_stats["Sample"] = df_file_stats["Column_name"].apply(lambda col: ', '.join(map(str, self.df[col].sample(n=min(5, self.df[col].count())).tolist())) if not self.df[col].empty else '')

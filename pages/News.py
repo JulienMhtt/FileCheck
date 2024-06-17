@@ -7,6 +7,7 @@ st.markdown("""
             - Upload Excel file with specific sheet
             - Upload TSV, JSON and PARQUET file
             - Contact me
+            - Minimum and maximum lenght of a columns in the "Stats" section.
 """)
 
 st.markdown("""
@@ -16,7 +17,6 @@ st.markdown("""
 
 st.write("### **Coming up**")
 st.markdown("""
-            - Minimum and maximum lenght of a columns in the "Stats" section.
             - Better page management.
             - Improvment of the existing features.
             - More csv separators.
