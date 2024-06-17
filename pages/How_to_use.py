@@ -46,8 +46,11 @@ with tab2:
                 - **Can_be_unique_key** \n
                 If Nb_unique_values is egal to the the lenght of the file, then a column might be considered as a unique key.\n
                 ---
-                - **Min** & **Max** \n
+                - **Min_value** & **Max_value** \n
                 Minimum and maximum value, only for numeric values.\n
+                ---
+                - **Min_lenght** & **Max_lenght** \n
+                Minimum and maximum lenght. Can be use for controling values with specific lenght (ex: post code, Ids).\n
                 ---
                 - **Mean** & **Median** \n
                 Mean and median of a serie.\n
