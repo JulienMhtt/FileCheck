@@ -51,8 +51,11 @@ class FileCheck:
 
 
     # Returns informations about duplicated values
-    def file_duplicates(self):
-      self.duplicates = self.df[self.df.duplicated(keep=False)]
+    def file_duplicates(self, column=None):
+      if column:
+        self.duplicates = self.df[self.df.duplicated(keep=False, subset=column)]
+      else:
+         self.duplicates = self.df[self.df.duplicated(keep=False)]
       return self.duplicates
 
 

@@ -81,9 +81,20 @@ if uploaded_files:
 
 
                 # File duplicates
-                duplicates = file_check.file_duplicates()
+
 
                 st.write("### **Duplicated rows**")
+                selected_columns_duplicates = st.multiselect("**Please select the columns to manage duplicates the way you want**", columns_list, key=f"multiselect_duplicates_{uploaded_file.name}")
+
+                # Full duplicates
+                if not selected_columns_duplicates:
+                    duplicates = file_check.file_duplicates()
+                    st.write("Full duplicate applied when no selection made.")
+
+                # Subset duplicates
+                else:
+                    duplicates = file_check.file_duplicates(selected_columns_duplicates)
+                
                 if not duplicates.empty:
                     st.write(duplicates)
                 else:
@@ -127,7 +138,7 @@ if uploaded_files:
                 # Tick box selection
                 st.write("### **Box plot**")
                 numeric_columns = df.select_dtypes(include='number').columns.tolist()
-                selected_columns = st.multiselect("**Please select columns to include in the box plot**", numeric_columns, key=f"multiselect_{uploaded_file.name}")
+                selected_columns = st.multiselect("**Please select columns to include in the box plot**", numeric_columns, key=f"multiselect_boxplot{uploaded_file.name}")
 
                 if selected_columns:
                     box_plot_graph = file_check.graph_box_plot(selected_columns)

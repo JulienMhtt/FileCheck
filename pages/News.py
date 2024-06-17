@@ -8,6 +8,7 @@ st.markdown("""
             - Upload TSV, JSON and PARQUET file
             - Contact me
             - Minimum and maximum lenght of a columns in the "Stats" section.
+            - Custom duplicated rows management.
 """)
 
 st.markdown("""
