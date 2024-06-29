@@ -11,20 +11,15 @@ class FileCheck:
 
 
     # Read the csv file
-    def file_read(self, sheet_name=None):
+    def file_read(self, sheet_name=0, skiprows=None):
         if self.file.name.endswith('.csv'):
             self.df = pd.read_csv(self.file)
         elif self.file.name.endswith('.tsv'):
             self.df = pd.read_csv(self.file, sep='\t')
         elif self.file.name.endswith('.xlsx'):
-            if sheet_name:
-                self.df = pd.read_excel(self.file, sheet_name=sheet_name)
-            else:
-                self.df = pd.read_excel(self.file)
-        elif self.file.name.endswith('.parquet'):
-            self.df = pd.read_parquet(self.file)
-        elif self.file.name.endswith('.json'):
-            self.df = pd.read_json(self.file)
+            self.df = pd.read_excel(self.file, sheet_name=sheet_name, skiprows=skiprows)
+            if self.df is dict:
+              self.df = pd.DataFrame.from_dict(self.df)
         return self.df
 
 

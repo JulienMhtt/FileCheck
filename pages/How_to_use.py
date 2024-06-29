@@ -5,7 +5,7 @@ st.title("How to use")
 st.write("### **Steps**")
 st.markdown("""
             1. Select you file type.
-            2. If your file type is **xlsx**, add the sheet name, by default, the first file sheet is used.
+            2. If your file type is **xlsx**, add the sheet name, by default, the first file sheet is used. You can also decide to skip rows.
             3. Use the "Browse file" tool to select **one or more files**. \n
             /!\ For now, only csv file with comma separted values are supported /!\ \n 
             4. You can now analyse the quality of your file(s)         

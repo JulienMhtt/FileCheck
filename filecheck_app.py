@@ -7,13 +7,27 @@ st.title("File check app")
 st.sidebar.title("Upload your file(s)")
 
 # File type selection
-file_type_options = ["csv", "tsv", "xlsx", "json", "parquet"]
+file_type_options = ["csv", "tsv", "xlsx"]
 selected_type = st.sidebar.radio("Choose a file type", options=file_type_options)
 
 # Sheet management Excel
-xlsx_sheet=None
+xlsx_sheet=0
+xlsx_skiprows=None
 if selected_type == "xlsx":
-    xlsx_sheet = st.sidebar.text_input("Sheet name (optional)")
+    xlsx_sheet_input = st.sidebar.text_input("Sheet name (optional)")
+    if xlsx_sheet_input:
+        xlsx_sheet = xlsx_sheet_input
+    else:
+        xlsx_sheet = 0
+
+    xlsx_skiprows_input = st.sidebar.text_input("How many rows to skip ? (optional)")
+    if xlsx_skiprows_input:
+        try:
+            xlsx_skiprows = int(xlsx_skiprows_input)
+        except ValueError:
+            st.sidebar.error("Please enter a valid number for rows to skip.")
+    else:
+        xlsx_skiprows = None
 
 # File Uploader
 uploaded_files = st.sidebar.file_uploader("upload_file", type=selected_type, accept_multiple_files=True, label_visibility='hidden')
@@ -34,7 +48,7 @@ if uploaded_files:
 
             # Read the file
             try: 
-                df = file_check.file_read(xlsx_sheet)
+                df = file_check.file_read(sheet_name=xlsx_sheet, skiprows=xlsx_skiprows)
                 st.write(f"The file **{uploaded_file.name}** is completely loaded")
                 st.write(" \n")
             except ValueError:
