@@ -89,7 +89,12 @@ class FileCheck:
  
     # Return a missing value graph
     def graph_missing(self):
-      fig = px.bar(self.file_stats, y='Column_name', x='Nb_missing_values')
+      df_percent_missing_value = pd.DataFrame(self.file_stats[["Column_name", "Nb_missing_values"]])
+      df_percent_missing_value["Percent_missing_values"] = (df_percent_missing_value["Nb_missing_values"]/self.shape[0]) * 100
+
+      fig = px.bar(df_percent_missing_value, y='Column_name', x='Percent_missing_values')
+      fig.update_xaxes(range=[0, 100], title_text="Percentage of missing values (%)")
+      fig.update_yaxes(title_text="Column name")
 
       return fig
     
@@ -99,7 +104,7 @@ class FileCheck:
       numeric_df = self.df.select_dtypes(include='number')
       correlation_matrix = numeric_df.corr()
       
-      fig = px.imshow(correlation_matrix)
+      fig = px.imshow(correlation_matrix, color_continuous_scale='Reds')
 
       return fig
 

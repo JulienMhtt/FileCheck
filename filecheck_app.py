@@ -135,7 +135,7 @@ if uploaded_files:
                 # Missing value graph
                 missing_value_graph = file_check.graph_missing()
 
-                st.write("### **Missing values**")
+                st.write("### **Missing Values by Column**")
                 st.plotly_chart(missing_value_graph)
                 st.write(" \n")
 
