@@ -109,3 +109,16 @@ class FileCheck:
         fig = px.box(self.df, y=columns)
         return fig
     
+    # SandBox Unique Key
+    def sandbox_uk(self, column_list):
+       df_uk = pd.DataFrame()
+       df_uk["combined_uk"] = self.df[column_list].astype(str).agg('_'.join, axis=1)
+
+       unique_combined_uk_count = df_uk["combined_uk"].nunique()
+
+       if unique_combined_uk_count == self.shape[0]:
+          return True
+       else:
+          return False
+          
+    

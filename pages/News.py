@@ -9,6 +9,7 @@ st.markdown("""
             - Contact me.
             - Minimum and maximum lenght of a columns in the "Stats" section.
             - Custom duplicated rows management.
+            - A sandbox to see which combination of columns can create a unique key.
 """)
 
 st.markdown("""
@@ -21,7 +22,6 @@ st.markdown("""
             - Better page management.
             - Improvment of the existing features.
             - More csv separators.
-            - A sandbox to see which combination of columns can create a unique key.
             - A NoCode tools for data light cleaning.
             - A sandbox to play with data viz and see your data from another perspective.
             - Your ideas and needs :) 

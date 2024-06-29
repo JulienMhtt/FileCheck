@@ -53,14 +53,14 @@ if uploaded_files:
                 st.write(" \n")
             except ValueError:
                 if selected_type == "xlsx":
-                    st.write("Sheet not found")
+                    st.error("This sheet DOES NOT exists")
                 else :
-                    st.write("Error while processing file")
+                    st.error("Error while processing file")
                 break
                 
 
             # Tabs
-            tab1, tab2, tab3 = st.tabs(["Overview", "Stats", "Graph view"])
+            tab1, tab2, tab3, tab4 = st.tabs(["Overview", "Stats", "Graph view", "Sandbox UK"])
 
 
             # TAB 1 OVERVIEW
@@ -112,7 +112,7 @@ if uploaded_files:
                 if not duplicates.empty:
                     st.write(duplicates)
                 else:
-                    st.write("There is no duplicated values")
+                    st.success("There is no duplicated values")
 
                 st.write(" \n")
 
@@ -161,6 +161,19 @@ if uploaded_files:
                 
 
                 st.write(" \n")
+
+            # SandBox Unique Key
+            with tab4:
+                st.write("### **Unique Key Test**")
+                selected_columns_uk = None
+                selected_columns_uk_input = st.multiselect("**Select column to check the unicity of the combinaison**", columns_list, key=f"multiselect_uk_{uploaded_file.name}")
+                if selected_columns_uk_input:
+                    uk_or_not = file_check.sandbox_uk(selected_columns_uk_input)
+                    if uk_or_not:
+                        st.success("This combination creates a Unique Key")
+                    else:
+                        st.error("This combination **DOES NOT** create a Unique Key")
+
 
 else :
     st.sidebar.write("**Please upload your file(s).**")
