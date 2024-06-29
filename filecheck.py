@@ -1,17 +1,66 @@
 import pandas as pd
 import plotly.express as px
 
-# Create a class that will read a csv file, return the shape, the columns name,
 class FileCheck:
+    """
+    A class for performing various checks and visualizations on a file (CSV, TSV, XLSX).
 
-    # Initialize the class
+    -------
+    Methods
+    -------
+    file_read(sheet_name=0, skiprows=None):
+        Reads the file into a DataFrame.
+    file_shape():
+        Returns the shape of the DataFrame.
+    file_columns():
+        Returns the columns of the DataFrame.
+    file_sample():
+        Returns a sample of the DataFrame.
+    file_duplicates(column=None):
+        Returns duplicated rows in the DataFrame.
+    file_stats():
+        Returns statistics about the DataFrame columns.
+    graph_missing():
+        Returns a bar chart of missing values as a percentage.
+    graph_correlation():
+        Returns a heatmap of the correlation between numeric columns.
+    graph_box_plot(columns):
+        Returns a box plot of the specified columns.
+    sandbox_uk(column_list):
+        Checks if the combination of specified columns is unique.
+    """
+
     def __init__(self, file):
+      """
+      Initializes the FileCheck class with the provided file.
+      
+      Parameters
+      ----------
+      file : file-like object
+          The file to be analyzed.
+      """
+
       self.file = file
 
 
 
-    # Read the csv file
     def file_read(self, sheet_name=0, skiprows=None):
+        """
+        Reads the file into a DataFrame based on the file extension.
+        
+        Parameters
+        ----------
+        sheet_name : str or int, optional
+            The sheet name or index to read from if the file is an Excel file. Default is 0.
+        skiprows : int, optional
+            The number of rows to skip at the start of the file. Default is None.
+        
+        Returns
+        -------
+        pd.DataFrame
+            The DataFrame created from the file.
+        """
+
         if self.file.name.endswith('.csv'):
             self.df = pd.read_csv(self.file)
         elif self.file.name.endswith('.tsv'):
@@ -24,29 +73,66 @@ class FileCheck:
 
 
 
-    # Returns the file shape
     def file_shape(self):
+      """
+      Returns the shape of the DataFrame.
+      
+      Returns
+      -------
+      tuple
+          The shape of the DataFrame (number of rows, number of columns).
+      """
+
       self.shape = self.df.shape
       return self.shape
 
 
 
-    # Returns the file columns
     def file_columns(self):
+      """
+      Returns the columns of the DataFrame.
+      
+      Returns
+      -------
+      pd.Index
+          The columns of the DataFrame.
+      """
+
       self.columns = self.df.columns
       return self.columns
 
 
 
-    # Returns a sample of the file
     def file_sample(self):
+      """
+      Returns a sample of the DataFrame.
+      
+      Returns
+      -------
+      pd.DataFrame
+          A sample of the DataFrame.
+      """
+
       self.sample = self.df.sample(n=min(10, len(self.df)))
       return self.sample
     
 
 
-    # Returns informations about duplicated values
     def file_duplicates(self, column=None):
+      """
+      Returns duplicated rows in the DataFrame.
+      
+      Parameters
+      ----------
+      column : list of str, optional
+          The column to check for duplicates. If None, checks all columns. Default is None.
+      
+      Returns
+      -------
+      pd.DataFrame
+          Duplicated rows in the DataFrame.
+      """
+
       if column:
         self.duplicates = self.df[self.df.duplicated(keep=False, subset=column)]
       else:
@@ -54,8 +140,19 @@ class FileCheck:
       return self.duplicates
 
 
-    # Return informations about the columns
+
     def file_stats(self):
+      """
+      Returns statistics about the DataFrame columns.
+      
+      Returns
+      -------
+      pd.DataFrame
+          A DataFrame with statistics about the columns, including type, number of missing values,
+          number of unique values, whether the column can be a unique key, the minimum & maximum values, the mean & median,
+          the minimum and maximum lenght and a data sample.
+      """
+
       df_file_stats = pd.DataFrame(self.columns, columns=["Column_name"])
 
       # Types
@@ -86,9 +183,20 @@ class FileCheck:
       self.file_stats = df_file_stats
 
       return self.file_stats
- 
-    # Return a missing value graph
+
+
+
+
     def graph_missing(self):
+      """
+      Returns a bar chart of missing values as a percentage.
+      
+      Returns
+      -------
+      plotly.graph_objs._figure.Figure
+          A bar chart showing the percentage of missing values for each column.
+      """
+
       df_percent_missing_value = pd.DataFrame(self.file_stats[["Column_name", "Nb_missing_values"]])
       df_percent_missing_value["Percent_missing_values"] = (df_percent_missing_value["Nb_missing_values"]/self.shape[0]) * 100
 
@@ -99,8 +207,17 @@ class FileCheck:
       return fig
     
 
-    # Correlation between columns
+
     def graph_correlation(self):
+      """
+      Returns a heatmap of the correlation between numeric columns.
+      
+      Returns
+      -------
+      plotly.graph_objs._figure.Figure
+          A heatmap showing the correlation between numeric columns.
+      """
+
       numeric_df = self.df.select_dtypes(include='number')
       correlation_matrix = numeric_df.corr()
       
@@ -109,21 +226,50 @@ class FileCheck:
       return fig
 
 
-    # Box plot
+
     def graph_box_plot(self, columns):
+        """
+        Returns a box plot of the specified columns.
+        
+        Parameters
+        ----------
+        columns : list of str
+            The columns to be included in the box plot.
+        
+        Returns
+        -------
+        plotly.graph_objs._figure.Figure
+            A box plot of the specified columns.
+        """
+
         fig = px.box(self.df, y=columns)
         return fig
     
-    # SandBox Unique Key
+
+ 
     def sandbox_uk(self, column_list):
-       df_uk = pd.DataFrame()
-       df_uk["combined_uk"] = self.df[column_list].astype(str).agg('_'.join, axis=1)
+        """
+        Checks if the combination of specified columns is unique.
 
-       unique_combined_uk_count = df_uk["combined_uk"].nunique()
+        Parameters
+        ----------
+        column_list : list of str
+            The columns to be checked for uniqueness.
 
-       if unique_combined_uk_count == self.shape[0]:
+        Returns
+        -------
+        bool
+            True if the combination of columns is unique, False otherwise.
+        """
+        
+        df_uk = pd.DataFrame()
+        df_uk["combined_uk"] = self.df[column_list].astype(str).agg('_'.join, axis=1)
+
+        unique_combined_uk_count = df_uk["combined_uk"].nunique()
+
+        if unique_combined_uk_count == self.shape[0]:
           return True
-       else:
+        else:
           return False
           
     
