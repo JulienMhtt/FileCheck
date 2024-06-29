@@ -1,5 +1,9 @@
 import streamlit as st
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
 from filecheck import FileCheck
+
+st.set_page_config(layout="wide")
 
 st.title("File check app")
 
@@ -7,6 +11,7 @@ st.title("File check app")
 st.sidebar.title("Upload your file(s)")
 
 # File type selection
+## User input file type
 file_type_options = ["csv", "tsv", "xlsx"]
 selected_type = st.sidebar.radio("Choose a file type", options=file_type_options)
 
@@ -14,12 +19,14 @@ selected_type = st.sidebar.radio("Choose a file type", options=file_type_options
 xlsx_sheet=0
 xlsx_skiprows=None
 if selected_type == "xlsx":
+    ## User input sheet name
     xlsx_sheet_input = st.sidebar.text_input("Sheet name (optional)")
     if xlsx_sheet_input:
         xlsx_sheet = xlsx_sheet_input
     else:
         xlsx_sheet = 0
 
+    ## User input skiprow
     xlsx_skiprows_input = st.sidebar.text_input("How many rows to skip ? (optional)")
     if xlsx_skiprows_input:
         try:
@@ -35,8 +42,8 @@ uploaded_files = st.sidebar.file_uploader("upload_file", type=selected_type, acc
 
 
 if uploaded_files:
-
     file_names = [uploaded_file.name for uploaded_file in uploaded_files]
+    ## User input navigation between loaded files
     selected_file = st.sidebar.radio("**Select a file to display**", file_names)
 
     for uploaded_file in uploaded_files:
@@ -95,17 +102,17 @@ if uploaded_files:
 
 
                 # File duplicates
-
-
                 st.write("### **Duplicated rows**")
+
+                ## User input columns duplicates
                 selected_columns_duplicates = st.multiselect("**Please select the columns to manage duplicates the way you want**", columns_list, key=f"multiselect_duplicates_{uploaded_file.name}")
 
-                # Full duplicates
+                ## Full duplicates
                 if not selected_columns_duplicates:
                     duplicates = file_check.file_duplicates()
                     st.write("Full duplicate applied when no selection made.")
 
-                # Subset duplicates
+                ## Subset duplicates
                 else:
                     duplicates = file_check.file_duplicates(selected_columns_duplicates)
                 
@@ -124,8 +131,69 @@ if uploaded_files:
                 file_stats = file_check.file_stats()
 
                 st.write("### **Here is some stats**")
-                st.write(file_stats)
-                st.write(" \n")
+                st.write(file_stats[["Column_name", "Type", "Nb_missing_values", "Nb_unique_values", "Can_be_unique_key", "Sample"]])
+                st.write("")
+
+                st.write("### **Detailed Column Stats**")
+    
+                def display_column_details(file_stats, df):
+                    for index, row in file_stats.iterrows():
+                        col_name = row["Column_name"]
+                        col_type = row["Type"]
+                        nb_missing = row["Nb_missing_values"]
+                        percent_missing = row["%_missing_values"]
+                        nb_unique = row["Nb_unique_values"]
+                        percent_unique = row["%_unique_values"]
+                        min_value = row["Min_value"]
+                        max_value = row["Max_value"]
+                        mean_value = row["Mean"]
+                        median_value = row["Median"]
+                        min_length = row["Min_length"]
+                        max_length = row["Max_length"]
+                        sample_values = row["Sample"]
+
+                        st.write(f"#### **{col_name}**")
+                        col1, col2, col3 = st.columns([1, 1, 1.5], gap="large")
+                        with col1:
+                            st.markdown(f"<p style='margin: 0'><b>Type:</b> <span style='float: right;'>{col_type}</span></p>", unsafe_allow_html=True)
+                            st.write("")
+                            st.markdown(f"<p style='margin: 0'><b>Missing values:</b> <span style='float: right;'>{nb_missing}</span></p>", unsafe_allow_html=True)
+                            st.markdown(f"<p style='margin: 0'><b>% Missing values:</b> <span style='float: right;'>{percent_missing:.2f}%</span></p>", unsafe_allow_html=True)
+                            st.write("")
+                            st.markdown(f"<p style='margin: 0'><b>Unique values:</b> <span style='float: right;'>{nb_unique}</span></p>", unsafe_allow_html=True)
+                            st.markdown(f"<p style='margin: 0'><b>% Unique values:</b> <span style='float: right;'>{percent_unique:.2f}%</span></p>", unsafe_allow_html=True)
+                            st.write("")
+                            if row["Type"] == "integer":
+                                st.markdown(f"<p style='margin: 0'><b>Min value:</b> <span style='float: right;'>{min_value}</span></p>", unsafe_allow_html=True)
+                                st.markdown(f"<p style='margin: 0'><b>Max value:</b> <span style='float: right;'>{max_value}</span></p>", unsafe_allow_html=True)
+                        with col2:
+                            st.markdown(f"<p style='margin: 0'><b>Min length:</b> <span style='float: right;'>{min_length}</span></p>", unsafe_allow_html=True)
+                            st.markdown(f"<p style='margin: 0'><b>Max length:</b> <span style='float: right;'>{max_length}</span></p>", unsafe_allow_html=True)
+                            st.write("")
+                            if row["Type"] == "integer":
+                                st.markdown(f"<p style='margin: 0'><b>Mean:</b> <span style='float: right;'>{mean_value}</span></p>", unsafe_allow_html=True)
+                                st.markdown(f"<p style='margin: 0'><b>Median:</b> <span style='float: right;'>{median_value}</span></p>", unsafe_allow_html=True)
+                                st.write("")
+                                st.markdown(f"<p style='margin: 0'><b>Sample values:</b> <span style='float: right;'>{sample_values}</span></p>", unsafe_allow_html=True)
+                        with col3:
+                            if row["Type"] == "string":
+                                text = " ".join(df[col_name].dropna().astype(str))
+                                try:
+                                    wordcloud = WordCloud(width=200, height=100, background_color="white").generate(text)
+                                    plt.figure(figsize=(10, 5))
+                                    plt.imshow(wordcloud, interpolation='bilinear')
+                                    plt.axis('off')
+                                    st.pyplot(plt)
+                                except ValueError:
+                                    st.error(f"{col_name} CANNOT get word cloud")
+
+                            if row["Type"] == "integer":
+                                fig_histo_stats_integer = file_check.count_stats_integer(col_name)
+                                st.plotly_chart(fig_histo_stats_integer)
+                        st.markdown("<hr>", unsafe_allow_html=True)
+
+                # Display detailed column stats
+                display_column_details(file_stats, df)
 
 
 
@@ -149,8 +217,9 @@ if uploaded_files:
 
 
                 # Box plot
-                # Tick box selection
                 st.write("### **Box plot**")
+
+                ## User input box plot columns selection
                 numeric_columns = df.select_dtypes(include='number').columns.tolist()
                 selected_columns = st.multiselect("**Please select columns to include in the box plot**", numeric_columns, key=f"multiselect_boxplot{uploaded_file.name}")
 
@@ -159,14 +228,16 @@ if uploaded_files:
 
                     st.plotly_chart(box_plot_graph)
                 
-
                 st.write(" \n")
 
-            # SandBox Unique Key
+            # TAB 4 SANDBOX UNIQUE KEY
             with tab4:
                 st.write("### **Unique Key Test**")
+
+                ## User input sandbox unique key column selection
                 selected_columns_uk = None
                 selected_columns_uk_input = st.multiselect("**Select column to check the unicity of the combinaison**", columns_list, key=f"multiselect_uk_{uploaded_file.name}")
+
                 if selected_columns_uk_input:
                     uk_or_not = file_check.sandbox_uk(selected_columns_uk_input)
                     if uk_or_not:
@@ -192,4 +263,3 @@ To get the last information like the last updates and future features,
 If you find any errors or think about a feature, 
 - reach the page **"Contact"**
 """)
-

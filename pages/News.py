@@ -10,6 +10,7 @@ st.markdown("""
             - Minimum and maximum lenght of a columns in the "Stats" section.
             - Custom duplicated rows management.
             - A sandbox to see which combination of columns can create a unique key.
+            - An new section in Stats with more details with bar chart and cloud word
 """)
 
 st.markdown("""

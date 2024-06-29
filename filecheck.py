@@ -149,7 +149,7 @@ class FileCheck:
       -------
       pd.DataFrame
           A DataFrame with statistics about the columns, including type, number of missing values,
-          number of unique values, whether the column can be a unique key, the minimum & maximum values, the mean & median,
+          number & percentage of unique values, whether the column can be a unique key, the minimum & maximum values, the mean & median,
           the minimum and maximum lenght and a data sample.
       """
 
@@ -158,11 +158,13 @@ class FileCheck:
       # Types
       df_file_stats["Type"] = df_file_stats["Column_name"].apply(lambda col: pd.api.types.infer_dtype(self.df[col]))
 
-      # Nb of missing values
+      # Nb & % of missing values
       df_file_stats["Nb_missing_values"] = df_file_stats["Column_name"].apply(lambda col: self.df[col].isnull().sum())
+      df_file_stats["%_missing_values"] = (df_file_stats["Column_name"].apply(lambda col: self.df[col].isnull().sum())/self.shape[0]) * 100
 
-      # Nb of unique values
+      # Nb & % of unique values
       df_file_stats["Nb_unique_values"] = df_file_stats["Column_name"].apply(lambda col: self.df[col].nunique())
+      df_file_stats["%_unique_values"] = (df_file_stats["Column_name"].apply(lambda col: self.df[col].nunique())/self.shape[0]) * 100
 
       # Can be unique key
       df_file_stats["Can_be_unique_key"] = df_file_stats["Nb_unique_values"] == self.df.shape[0]
@@ -173,9 +175,9 @@ class FileCheck:
       df_file_stats["Mean"] = df_file_stats["Column_name"].apply(lambda col: self.df[col].dropna().mean() if pd.api.types.is_numeric_dtype(self.df[col]) else None)
       df_file_stats["Median"] = df_file_stats["Column_name"].apply(lambda col: self.df[col].dropna().mean() if pd.api.types.is_numeric_dtype(self.df[col]) else None)
 
-      # Lenght of values
-      df_file_stats["Min_lenght"] = df_file_stats["Column_name"].apply(lambda col: self.df[col].dropna().apply(lambda x: len(str(x))).min())
-      df_file_stats["Max_lenght"] = df_file_stats["Column_name"].apply(lambda col: self.df[col].dropna().apply(lambda x: len(str(x))).max())
+      # Length of values
+      df_file_stats["Min_length"] = df_file_stats["Column_name"].apply(lambda col: self.df[col].dropna().apply(lambda x: len(str(x))).min())
+      df_file_stats["Max_length"] = df_file_stats["Column_name"].apply(lambda col: self.df[col].dropna().apply(lambda x: len(str(x))).max())
 
       # Sample
       df_file_stats["Sample"] = df_file_stats["Column_name"].apply(lambda col: ', '.join(map(str, self.df[col].sample(n=min(5, self.df[col].count())).tolist())) if not self.df[col].empty else '')
@@ -246,6 +248,24 @@ class FileCheck:
         return fig
     
 
+
+    def count_stats_integer(self, int_column):
+      """
+      Returns a bar chart of integer values in stats section.
+      
+      Returns
+      -------
+      plotly.graph_objs._figure.Figure
+          A bar chart showing the effective of interger values.
+      """
+
+      count_values = self.df[int_column].value_counts().reset_index()
+      count_values.columns = [int_column, "Count"]
+      
+      fig = px.bar(count_values, x=int_column, y="Count")
+      fig.update_layout(width=600, height=300)
+      return fig
+
  
     def sandbox_uk(self, column_list):
         """
@@ -261,7 +281,7 @@ class FileCheck:
         bool
             True if the combination of columns is unique, False otherwise.
         """
-        
+
         df_uk = pd.DataFrame()
         df_uk["combined_uk"] = self.df[column_list].astype(str).agg('_'.join, axis=1)
 
