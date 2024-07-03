@@ -179,7 +179,7 @@ if uploaded_files:
                             if row["Type"] == "string":
                                 text = " ".join(df[col_name].dropna().astype(str))
                                 try:
-                                    wordcloud = WordCloud(width=200, height=100, background_color="white").generate(text)
+                                    wordcloud = WordCloud(width=200, height=100).generate(text)
                                     plt.figure(figsize=(10, 5))
                                     plt.imshow(wordcloud, interpolation='bilinear')
                                     plt.axis('off')
