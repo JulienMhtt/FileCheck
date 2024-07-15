@@ -4,11 +4,11 @@ st.title("How to use")
 
 st.write("### **Steps**")
 st.markdown("""
-            1. Select you file type.
+            1. Select your file type.
             2. If your file type is **xlsx**, add the sheet name, by default, the first file sheet is used. You can also decide to skip rows.
             3. Use the "Browse file" tool to select **one or more files**. \n
-            /!\ For now, only csv file with comma separted values are supported /!\ \n 
-            4. You can now analyse the quality of your file(s)         
+            /!\ For now, only csv file with comma separated values are supported /!\ \n 
+            4. You can now analyze the quality of your file(s)         
             """)
 st.write("\n")
 
@@ -35,7 +35,7 @@ with tab1:
 with tab2:
     st.markdown("""
                 - **Type** \n
-                Column type using "infer_dtype()" that deduce column types as csv file don't store column types.\n
+                Column type using "infer_dtype()" that deduces column types as csv file don't store column types.\n
                 ---
                 - **Nb_missing_values** \n
                 The number of missing values.\n
@@ -44,16 +44,16 @@ with tab2:
                 The number of unique values.\n
                 ---
                 - **Can_be_unique_key** \n
-                If Nb_unique_values is egal to the the lenght of the file, then a column might be considered as a unique key.\n
+                If Nb_unique_values is equal to the the length of the file, then a column might be considered as a unique key.\n
                 ---
                 - **Min_value** & **Max_value** \n
                 Minimum and maximum value, only for numeric values.\n
                 ---
                 - **Min_lenght** & **Max_lenght** \n
-                Minimum and maximum lenght. Can be use for controling values with specific lenght (ex: post code, Ids).\n
+                Minimum and maximum length. Can be use for controlling values with specific length (ex: post code, Ids).\n
                 ---
                 - **Mean** & **Median** \n
-                Mean and median of a serie.\n
+                Mean and median of a series.\n
                 ---
                 - **Sample** \n
                 Data sample.
@@ -61,7 +61,7 @@ with tab2:
     """)
 
     with tab3:
-        st.write("On each graph, you can **zoom in** by selectinning an area and double click to **cancel**.")
+        st.write("On each graph, you can **zoom in** by selecting an area and double click to **reset**.")
         st.write("\n")
 
         st.markdown("""
@@ -69,10 +69,10 @@ with tab2:
                     A graphical representation of the missing values in the file.\n
                     ---
                     - **Correlation between columns** \n
-                    Only for numerical values, can show correlation between columns that we won't be able to see without visual representation.\n
+                    Only for numerical values, it can show correlation between columns that we wouldn't be able to see without visual representation.\n
                     ---
                     - **Box plot** \n
-                    Select one or more columns to visualy analyse and compare min, max, Q1 to Q4, median, lower & upper fence and outliers.\n
+                    Select one or more columns to visually analyse and compare min, max, Q1 to Q4, median, lower & upper fence and outliers.\n
                     
         """)
         
